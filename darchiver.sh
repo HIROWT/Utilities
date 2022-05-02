@@ -34,8 +34,8 @@ echo "Moving "${#mFiles[@]}" files..."
 
 for file in "${mFiles[@]}"
 do
-	DATE=$(date -r "$file" )
-	DATE="${DATE:7:3}${DATE:13:2}"
+	DATE=$(date +"%Y%B" -r "$file" )
+	DATE="${DATE:2:2}${DATE:4:3}" 
 	mkdir -p /home/"$USER"/Downloads/Archive/"$DATE"; sudo mv "$file" /home/"$USER"/Downloads/Archive/"$DATE"
 done
 
