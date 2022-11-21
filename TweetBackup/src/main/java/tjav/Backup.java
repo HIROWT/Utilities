@@ -35,9 +35,9 @@ public class Backup {
 		//user id
 		
 		TwitterApi apiInstance = new TwitterApi(new TwitterCredentialsOAuth2(
-				"P7euyqZGjYoNjr0WSzGKEJSYs",
-				"2Xc7exfXuZeO8Ss5BbtY4oGc9UhNX08MJCdFuNKGN6q4Db02mc",
-				"AAAAAAAAAAAAAAAAAAAAAJ8tjAEAAAAAEESm3mfq9e18NtzY7enPWN87auY%3DOmVyWIxzqYT6u69ElOOqlnCIQT5gup0G0oZegHtxbs4evUeaKm",
+				"",
+				"",
+				"",
 				""));
 		
 		Runnable helloRunnable = new Runnable() {

@@ -12,9 +12,9 @@ import com.twitter.clientlib.model.User;
 public class TT {
 	public static void main(String[] args) throws ApiException {
 		TwitterApi apiInstance = new TwitterApi(new TwitterCredentialsOAuth2(
-				"P7euyqZGjYoNjr0WSzGKEJSYs",
-				"2Xc7exfXuZeO8Ss5BbtY4oGc9UhNX08MJCdFuNKGN6q4Db02mc",
-				"AAAAAAAAAAAAAAAAAAAAAJ8tjAEAAAAAEESm3mfq9e18NtzY7enPWN87auY%3DOmVyWIxzqYT6u69ElOOqlnCIQT5gup0G0oZegHtxbs4evUeaKm",
+				"",
+				"",
+				"",
 				System.getenv("TWITTER_OAUTH2_REFRESH_TOKEN")));
 
 		// System.out.println(apiInstance.tweets().listsIdTweets("1343223757192613888").execute());
