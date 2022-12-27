@@ -8,18 +8,33 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.Set;
 
+import org.apache.tomcat.jni.Time;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.example.demo.model.ArchTweet;
+import com.twitter.clientlib.ApiException;
 import com.twitter.clientlib.TwitterCredentialsOAuth2;
 import com.twitter.clientlib.api.TwitterApi;
 import com.twitter.clientlib.model.Tweet;
@@ -33,55 +48,84 @@ public class TweetToTXT implements TweetDao {
 	File idFile; //file with IDs
 	File twFile; //file with Tweets
 	String tUserName;
+	String tUserId;
 	boolean initiated = true;
 	
-	
+    
 	@Autowired
 	public TweetToTXT() {
 		
 		this.apiInstance = new TwitterApi(new TwitterCredentialsOAuth2(
-				//API keys here
-				"****************",
-				"****************",
-				"****************",
-				"****************"));
-		this.idFile = new File("TweetIDs.txt");;
+				"",
+				"",
+				"",
+				""));
 		this.twFile = new File("TweetBackups.txt");;
-		this.tUserName = "brutedeforce";
-		//name of twitter account
+		this.tUserName = "";
+		try {
+			this.tUserId = apiInstance.users().findUserByUsername(tUserName).execute().getData().getId();
+		} catch (ApiException e) {
+			System.out.println("Couldn't set username");
+			//e.printStackTrace();
+		}
+		
+		if(initiated) {
+			//txtToArray();
+			try {
+				dbToArray();
+			} catch (Exception e) {
+				
+				e.printStackTrace();
+			}
+			
+		}
 		//TODO 
 		//method to get tweet objects from the DB (text file) and put into archTweets
 	}
 	
-	public void txtToArray() {
+	public void dbToArray() throws Exception {
+		DBConnection dbc = new DBConnection();
+		PreparedStatement stmnt;
+		String query = "select * from Tweets";
 		
-		try {
-			Scanner scan = new Scanner(twFile);
-			scan = scan.useDelimiter("_T_TWEET_T_");
-			
-			while(scan.hasNext()) {
-				//seperate Text from ID, add to ArchTweets list
-				String format = scan.next();
-				String[] seperated = format.split("_T_TEXT_T_");
-				//System.out.println(seperated[0]);
-				this.archTweets.add(new ArchTweet(seperated[1], seperated[0]));
-			}
-			
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		Connection connection = dbc.getConnection();
+		stmnt = connection.prepareStatement(query);
+		ResultSet resultSet = stmnt.executeQuery();
+		
+		while(resultSet.next()) {
+			ArchTweet tba = new ArchTweet(resultSet.getString(1), resultSet.getString(2), resultSet.getString(3), resultSet.getString(4));
+			this.archTweets.add(tba);
 		}
 		
 		this.initiated = false;
+		
 	}
 	
 	
+	public void updateDB(ArchTweet archTweet) throws Exception {
+		DBConnection dbc = new DBConnection();
+		PreparedStatement stmnt;
+		stmnt = dbc.getConnection().prepareStatement("Insert into Tweets Values (?,?,?,?)");
+		
+		stmnt.setString(1, archTweet.tweetText);
+		stmnt.setString(2, archTweet.tweetId);
+		stmnt.setString(3, archTweet.createdAt);
+		stmnt.setString(4, archTweet.quotedTweet);
+		
+		
+		stmnt.executeUpdate();
+	}
+
 	
 
 	@Override
-	public void insertTweet(String text, String id) {
-		archTweets.add(new ArchTweet(text, id));
-		//code to add a tweet to the file as well?
+	public void insertTweet(ArchTweet archTweet) {
+		try {
+			updateDB(archTweet);
+			dbToArray();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -89,112 +133,106 @@ public class TweetToTXT implements TweetDao {
 		// TODO Auto-generated method stub
 		return archTweets;
 	}
-
+	
 	@Override
 	public void refreshTweets() {
+		System.out.println("Beginning check @ " + LocalTime.now().getMinute() + " " +  LocalTime.now().getSecond());
 		if(initiated) {
-			txtToArray();
-		}
-
+			try {
+				dbToArray();
+			}catch(Exception e){
+				System.out.println("Couldn't initialize!");
+			}
+		} 
 		//check txt for tweet id etc. if not present write to txt, write to archTweets
 		try {
-	    	String userTarg = apiInstance.users().findUserByUsername(tUserName).execute().getData().getId();
-			
+			Set<String> tweetParams = new HashSet<>();
+			tweetParams.add("text"); tweetParams.add("created_at"); tweetParams.add("referenced_tweets");
+			//set parameters for tweet
+			Tweet rec = apiInstance.tweets().usersIdTweets(tUserId).tweetFields(tweetParams).execute().getData().get(0);
+			//Retrieve tweet
 			//getting ID of most recent tweet
-			String recentID = apiInstance.tweets().usersIdTweets(userTarg).execute().getData().get(0).getId();
+			String recentID = rec.getId();
 			//checking if it's already been archived
-			if(TextDB.getLineNumber(recentID, idFile ) < 0){
-				Set<String> tweetParams = new HashSet<>();
-				tweetParams.add("text"); tweetParams.add("created_at"); tweetParams.add("referenced_tweets");
-				//set parameters for tweet
-				Tweet rec = apiInstance.tweets().usersIdTweets(userTarg).tweetFields(tweetParams).execute().getData().get(0);
-				//Retrieve tweet
+			if(!listHas(recentID)){
 				
-				//if(isRefTweet(rec))
+				if(isRefTweet(rec)) {
+					String refId = rec.getReferencedTweets().get(0).getId();
+					Tweet ref = apiInstance.tweets().findTweetById(refId).tweetFields(tweetParams).execute().getData();
 					
-				TextDB.writeIDTo(rec, idFile);
-				TextDB.writeTweetTo(rec, twFile);
+					ref.getText();
+					//add referenced tweet to recent tweet
+					archTweets.add(new ArchTweet(rec.getText(), rec.getId(), rec.getCreatedAt(), ref.getText()));
+					updateDB(archTweets.get(archTweets.size() - 1));
+				}else {
+					archTweets.add(new ArchTweet(rec.getText(), rec.getId(), rec.getCreatedAt()));
+					updateDB(archTweets.get(archTweets.size() - 1));
+				}
 				
-				archTweets.add(new ArchTweet(rec.getText(), rec.getId()));
-		
 				System.out.println("Copying over " + recentID + " " + rec.getId() );
 				
-			}else {
-				//System.out.println("Tweet already exists! " + apiInstance.tweets().usersIdTweets(userTarg).execute().getData().get(0).getId());
-				//System.out.println(archTweets.size());
 			}
 			
 	    }catch(Exception e) {
-	    	//e.printStackTrace();
-	    	System.out.println("Trouble retrieving tweet");
+	    	e.printStackTrace();
+	    	System.out.println("Trouble refreshing tweet");
 	   	}
-	    	
-		//archTweets.add(new ArchTweet("ddd", "k"));
+	    //serialize here	
+		
 	}
+			
 	
-	public boolean isRefTweet(Tweet tweet) {
-		if(tweet.getReferencedTweets().get(0).getType().getValue() != null) {
-			return true;
+	public boolean listHas(String iD) {
+		for(int i = 0; i< archTweets.size(); i++) {
+			if(archTweets.get(i).tweetId.equals(iD) ) {
+				//System.out.println("Recent is duplicate!");
+				return true;
+			}
 		}
+		
 		return false;
 	}
 	
+	public void purgeDuplicates() {
+		HashSet<ArchTweet> remDuplicates = new HashSet<>();
+		
+		for(int i = 0; i< archTweets.size(); i++) {
+			remDuplicates.add(archTweets.get(i));
+		}
+		
+		this.archTweets = new ArrayList<>(remDuplicates);
+		Collections.reverse(archTweets);
+		
+		//updateSerial();
+	}
 	
-}
+	
+	public boolean isRefTweet(Tweet tweet) {
+		if(tweet.getReferencedTweets() != null) {
+			if(tweet.getReferencedTweets().get(0).getType().getValue() != null) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-class TextDB{
-	public static int getLineNumber(String userName, File usernameFile) {
-	    boolean found = false;
-	    int lineCount = -1;
-	    try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(usernameFile)))) {            
-	        String line;
-	        while ((line = reader.readLine()) != null && !found) {
-	            ++lineCount; // increment and get (start at 0)
-	            found = line.trim().equals(userName); // found it?
-	        }
-	    } catch (IOException ex) {
-	       // Logger.getLogger(TestMain.class.getName()).log(Level.SEVERE, null, ex);
-	    }
-	    if (!found) {
-	        // we didn't find it... return -1 (an impossible valid value) to handle that scenario.
-	        lineCount = -1;
-	    }
-	    return lineCount; // found it, what line?
-	    
+	@Override
+	public void tweetLoader() {
+		// TODO Auto-generated method stub
+		
 	}
 	
-	public static void writeTweetTo(Tweet t, File tw) {
-		try {
-            
-			System.out.println("Writing tweet");
-			//Whatever the file path is.
-            File statText = tw;
-            FileOutputStream is = new FileOutputStream(statText, true);
-            OutputStreamWriter osw = new OutputStreamWriter(is);    
-            Writer w = new BufferedWriter(osw);
-            
-            //w.write(t.getText());
-            //write tweet to file
-            w.write("_T_TWEET_T_" + t.getId()  + "_T_TEXT_T_" + t.getText() + "\n");
-            w.close();
-        } catch (IOException e) {
-        	System.err.println("Problem writing to the file ");
-        }
+	@Override
+	public List<ArchTweet> searchTweets(String query){
+		List<ArchTweet> tweets = new ArrayList<>();
+		for(int i = 0; i < this.archTweets.size(); i++) {
+			if(archTweets.get(i).tweetText.indexOf(query) != -1) {
+				tweets.add(archTweets.get(i));
+			}
+		}
+		
+		return tweets;
 	}
 	
-	public static void writeIDTo(Tweet t, File tw) {
-		try {
-            //Whatever the file path is.
-            File statText = tw;
-            FileOutputStream is = new FileOutputStream(statText, true);
-            OutputStreamWriter osw = new OutputStreamWriter(is);    
-            Writer w = new BufferedWriter(osw);
-            
-            //w.write(t.getText());
-            w.write(t.getId() + " \n");
-            w.close();
-        } catch (IOException e) {
-            System.err.println("Problem writing to the file ");
-        }
-	}
+	
 }

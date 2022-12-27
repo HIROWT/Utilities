@@ -1,0 +1,99 @@
+<!DOCTYPE html >
+<html xmlns="https://github.com/HIROWT" xml:lang="en">
+<head>
+<title>Twitter Archive</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+ <!--  <link rel="stylesheet" href="styles.css" type="text/css" media="screen,projection" />-->
+<link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div id="header">
+  <h1 class="right">TPA</h1>
+  <h1><a href="#"></a></h1>
+</div>
+<ul id="nav"> 
+  <li class="right">
+    <input value="Search..." type="text" />
+  </li>
+  <li><a href="forgotten">Forgotten Tweets</a></li>
+  <li><a href="/">Home</a></li>
+  <li><a href="/about">About</a></li>
+  <li><a href="https://github.com/HIROWT">Github</a></li>
+  <li><a href="#">Contact</a></li>
+</ul>
+<div class="clear" />
+<div id="sidebar">
+ 
+</div>
+<div><h3>How it works</h3><img src="/images/Diag.png" alt="Diagram"><p>Checks for latest tweet every minute, full integration of the Twitter v2 API with SpringBoot framework.</div>
+<!--
+<div id="content">
+  
+  <blockquote th:each="key : ${Tweet}" class = "comments">
+	   <p> <b th:text="${key.tweetText}"></b> </p>  	
+	  <div class="details">
+	    <p> <t th:text="${key.quotedTweet} ? 'Retweeted by' : 'Posted by'" ></t> <a href="https://nitter.net/brutedeforce/">@brutedeforce</a> on <t th:text="${key.createdAt}"></t> ID <a href=index.html th:href="@{'https://nitter.net/brutedeforce/status/'+${key.tweetId}+'#m'}"> <t th:text="${key.tweetId}"></t> </a> </p>
+	  	<t th:text="${key.quotedTweet} ? ${key.quotedTweet.tweetText} : ''"></t>
+	  </div>
+	    
+  </blockquote>
+    
+  <h2><a href="#" id="about">About the Author</a></h2>
+  <p> Hi! My names Jay and I'm a 20 year old web designer from England. My main projects are conducted through my website Six Shooter Media, but I (obviously) also enjoy creating Open Source web templates for general use! You can keep a check on my free templates here which is probably a link worth bookmarking as my templates appear there a couple of weeks before OWD/OSWD due to the design queues. </p>
+  <div class="details">
+    <p> Posted by <a href="#">User Name</a> on <a href="#">01.01.01.</a> There are <a href="#">25 Comments</a>. </p>
+  </div>
+  <h2><a href="#" id="examples">Some Examples</a></h2>
+  <p> OK, here I'll just put some example html elements that you will most probably be using in your blog. </p>
+  <h3>Blockquote Example</h3>
+  <blockquote>
+    <p> <em> My tendency<br />
+      For dependency<br />
+      Is offending me<br />
+      It's up-ending me<br />
+      I'm pretending see<br />
+      To be strong and free<br />
+      From my dependency<br />
+      It's warping me </em> </p>
+  </blockquote>
+  <h3>List Example</h3>
+  <ul>
+    <li>Here</li>
+    <li>Is our friend</li>
+    <li>The list!</li>
+  </ul>
+  <h3>Comment Examples</h3>
+  <ol class="comments">
+    <li>
+      <p class="user"><a href="#">User Name</a> remarks:</p>
+      <p> Comment text here jndfl jsndjaf ndsfn aeufn uisf shelf jsae hej hfliusl huifehsu adlhfjeshflsdl hfaisehfj sdhfljk ashdfjk dshlfajdsjah fjsdlhf sdsd fadsf adsf adsf dsaf adsf dsaf dsf dsaf ads fdsaf dsaf dsf dsafk sadf;klsdjafksdahfjsndajfklnasdjf ndask jfndsajf nsldjanf jksanf ljksadnf ljksnadf jksndafkj sdnajfk sndljkfnsadljfk ndsajkf ndsaljf ndls kfnjahf lsdaf ljsdahf jksahdf hadsfjksdha fjsdhafjkshdafjkshdafjds </p>
+    </li>
+    <li class="alt">
+      <p class="user"><a href="#">User Name</a> remarks:</p>
+      <p> Comment text here jndfl jsndjaf ndsfn aeufn uisf shelf jsae hej hfliusl huifehsu adlhfjeshflsdl hfaisehfj sdhfljk ashdfjk dshlfajdsjah fjsdlhf sdjahf lsdaf ljsdahf jksahdf hadsfjksdha fjsdhafjkshdafjkshdafjds </p>
+    </li>
+    <li>
+      <p class="user"><a href="#">User Name</a> remarks:</p>
+      <p> Comment text here jndfl jsasdf ksa fmndsanfjsdanlf jdsanlfk jnsdlafj nsaklfn aksjf nlkasjfn lsnakf jasdnf lksdnf lksjna fjksdanlf ksndaf lkasnf jadsnf lksandf jksdanf jksanf lasdnf lasknf asjdfn lsajfn dsanf jdsanfk jsdfjn jknfsg kljfdnjkgfdsngl fdjn gfdlnsg jfdsnlgsfdjng lkns gsdjfng lfdsng ksnfg jfdsngl jfds ngfdsjgn lfdsng dfslng sjdfn jfds gnlfdjsng ljksfng jksfnlg jkfndsg ljkfsng lkjfng jksfdnl gfdsng jdfsng lkjnsdf gjkfsdn gjfdnslgj nfdsjg nlfdsnk gsjfdng ldfsjng lkjsndg kjsnldg jfdnsg lknsfd gkjnlg kjfndsgkl jnsdfg kjlfndlsgk jfndsljgk nfdsljg nfdlsng lsnd jkfnsg ljkfsn gljdsnfgkj nsfd jkgnsdflg jfdnsgl kjfsndgjknsfdlgk jfndsljgk nfdsgkj nfdlsng lsnfdg jksndf gjksfndgjkfdsng kjfdngl jksndfgkjndfjgk lsdgn dfls ngklsdnkg sndjaf ndsfn aeufn uisf shelf jsae hej hfliusl huifehsu adlhfjeshflsdl hfaisehfj sdhfljk ashdfjk dshlfajdsjah fjsdlhf sdjahf lsdaf ljsdahf jksahdf hadsfjksdha fjsdhafjkshdafjkshdafjds </p>
+    </li>
+    <li class="alt">
+      <p class="user"><a href="#">User Name</a> remarks:</p>
+      <p> Comment text here jndfl jsndjaf ndsfn aeufn uidfa dsf adsf dsf dsf dsf sadf asdfsf shelf jsae hej hfliusl huifehsu adlhfjeshflsdl hfaisehfj sdhfljk ashdfjk dshlfajdsjah fjsdlhf sdjahf lsdaf ljsdahf jksahdf hadsfjksdha fjsdhafjkshdafjkshdafjds </p>
+      <p> Comment text here jndfl jsndjaf ndsfn aeufn uisf shsaf asdf sdaf dsaf sdaf sdaf sdaf sda fasdf dsf dasf dsaf sdaf asd fsda fdsaf dsa fdsaf dsf dsaf dsaf dsaf asdf asdf sdaf asdf dsaf dsaf sdaf dsf dsaf dsf dsalkfn dskjf ndalfndasjnf klsdnf jksdnaf lkjdnsaf jksdnaf lksndajf dnslafk jadslf kdnslajfk nsiuasnefuesnjfk dnalfjeufn sujaejk fhsdjafhl easuaf hsiuah ssuehfuisdhfau sfhiushdf jdshaf seihfuelf jsae hej hfliusl huifehsu adlhfjeshflsdl hfaisehfj sdhfljk ashdfjk dshlfajdsjah fjsdlhf sdjahf lsdaf ljsdahf jksahdf hadsfjksdha fjsdhafjkshdafjkshdafjds </p>
+    </li>
+  </ol>
+  <h2><a href="#" id="contact">Contact</a></h2>
+  <p> If you decide to use this template please drop me a line to let me know! Don't hesitiate to get in touch if your interested in a custom template or just in any of my services in general. I look forward to hearing from you! </p>
+  <div class="details">
+  
+    <p> Posted by <a href="#">User Name</a> on <a href="#">01.01.01.</a> There are <a href="#">25 Comments</a>. </p>
+  </div>
+</div>
+
+ -->
+<div id="footer">
+  <p>HIROWT Twitter Scraper <a href="https://github.com/HIROWT">GitHub</a>.<br />
+    © your mom.</p>
+</div>
+</body>
+</html>

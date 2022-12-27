@@ -1,5 +1,8 @@
 package com.example.demo.service;
 
+import java.time.Instant;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -20,6 +23,7 @@ public class TweetGrabbingService {
 	@Autowired
 	public TweetGrabbingService(@Qualifier("text")TweetDao tweetDao) {
 		this.tweetDao = tweetDao;
+		tweetDao.refreshTweets();
 		refreshTweets();
 	}
 
@@ -35,13 +39,20 @@ public class TweetGrabbingService {
 		return reverseTweets;
 	}
 	
-	public void refreshTweets() {
-		//schedule tweet refresh every x seconds
+	public void refreshTweets() {	
 		Runnable tRefresh = () -> this.tweetDao.refreshTweets();
 		System.out.println("refreshing tweets");
 		ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-		executor.scheduleAtFixedRate(tRefresh, 0, 10, TimeUnit.SECONDS);	
+		executor.scheduleAtFixedRate(tRefresh, 0, 60, TimeUnit.SECONDS);	
 		
+	}
+	
+	public void insertTweet(ArchTweet archTweet) {
+		this.tweetDao.insertTweet(archTweet);
+	}
+	
+	public List<ArchTweet> searchTweets(String query){
+		return this.tweetDao.searchTweets(query);
 	}
 	
 	
